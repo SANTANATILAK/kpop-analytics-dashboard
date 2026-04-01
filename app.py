@@ -6,10 +6,8 @@ import os
 from src.data_processing import load_data, calculate_re_entries_and_momentum, get_artist_summary
 from datetime import datetime
 
-# Page Config
 st.set_page_config(page_title="Atlantic K-Pop Analytics", layout="wide", page_icon="📈")
 
-# Load CSS if needed (inline for now)
 st.markdown("""
 <style>
     .metric-box {
@@ -34,7 +32,7 @@ st.markdown("""
 st.title("📈 K-Pop Momentum & Re-entry Dashboard")
 st.markdown("**Atlantic Recording Corporation** | Intelligence via Fandom Momentum Dynamics")
 
-# --- DATA LOADING ---
+
 @st.cache_data
 def load_and_process():
     filepath = os.path.join(os.path.dirname(__file__), 'data', 'playlist_history.csv')
@@ -52,23 +50,22 @@ if raw_df is None:
     st.error("Data not found. Please run `python src/generate_mock_data.py` first.")
     st.stop()
 
-# --- SIDEBAR FILTERS ---
+
 st.sidebar.header("Filter Configuration")
 
-# Date range
+
 min_date = raw_df['date'].min().to_pydatetime()
 max_date = raw_df['date'].max().to_pydatetime()
 start_date, end_date = st.sidebar.slider("Date Range", min_value=min_date, max_value=max_date, value=(min_date, max_date))
 
-# Artist Filter
 all_artists = ["All"] + sorted(raw_df['artist'].unique().tolist())
 selected_artist = st.sidebar.selectbox("Select Artist", all_artists)
 
-# Album Type Filter
+
 album_types = ["All", "Single", "Album"]
 selected_type = st.sidebar.selectbox("Album Type", album_types)
 
-# Apply Filters
+
 filtered_raw = raw_df[(raw_df['date'] >= start_date) & (raw_df['date'] <= end_date)]
 filtered_momentum = momentum_df[(momentum_df['start_date'] >= start_date) & (momentum_df['end_date'] <= end_date)]
 
@@ -81,7 +78,6 @@ if selected_type != "All":
     filtered_momentum = filtered_momentum[filtered_momentum['album_type'] == selected_type]
 
 
-# --- DASHBOARD METRICS ---
 col1, col2, col3, col4 = st.columns(4)
 col1.markdown(f'<div class="metric-box"><div class="metric-value">{len(filtered_momentum)}</div><div class="metric-title">Total Chart Runs</div></div>', unsafe_allow_html=True)
 re_entries = filtered_momentum[filtered_momentum['entry_type'] == 'Re-Entry']
@@ -93,7 +89,6 @@ col4.markdown(f'<div class="metric-box"><div class="metric-value">{max_fandom:.1
 
 st.markdown("---")
 
-# --- TABS ---
 tab1, tab2, tab3, tab4 = st.tabs([
     "Re-Entry & Timeline Visualizer", 
     "Momentum & Comeback Spikes", 
@@ -124,7 +119,7 @@ with tab2:
     st.subheader("Momentum Spike Analysis")
     st.write("Comparing the initial popularity vs the peak popularity achieved during a specific run.")
     
-    # Scatter Plot of Retention vs Momentum Spike
+  
     fig_scatter = px.scatter(filtered_momentum, x="momentum_spike_score", y="retention_days", 
                              color="entry_type", size="fandom_proxy_score", hover_name="song",
                              hover_data=["artist", "best_rank_achieved"],
@@ -136,8 +131,7 @@ with tab3:
     st.write("Does distributing a single vs full album yield a longer retention or higher comeback spike?")
     
     col_a, col_b = st.columns(2)
-    
-    # Bar chart single vs album
+
     with col_a:
         fig_box_retention = px.box(filtered_momentum, x="album_type", y="retention_days", 
                                    color="entry_type", points="all",
