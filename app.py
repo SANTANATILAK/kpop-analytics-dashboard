@@ -226,4 +226,4 @@ with tab4:
     st.write("A composite score (0-100) aggregating high-retention days, sharp rank jump capacity, and frequency of re-entries.")
     
     st.dataframe(artist_df.style.background_gradient(cmap="Greens", subset=['fandom_proxy_score']),
-                 hide_index=True)
+                 use_container_width=True, hide_index=True)
